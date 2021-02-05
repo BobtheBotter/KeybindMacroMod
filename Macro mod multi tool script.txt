@@ -1,0 +1,654 @@
+if(z);log("&4 OFF");unset(z);keyup(forward);keyup(back);keyup(left);keyup(right); 
+stop();else;set(z);log("&2 ON");endif;
+//=========================
+Prompt(&option,"$$[Action[Farming,Brewing]]");
+//=========================
+IF(%&option%="Farming");
+    Prompt(&farmer,"$$[Action[NetherWart,Wheat,Carrots,Potatoes,SugarCane]]");
+    Prompt(&number,"$$[Repeat[8,16,32,48,64,99999]]");
+    Prompt(&selling,"$$[Selling[None,Sell Hand,Sell All]]");
+endif;
+//=========================
+IF(%&option%="Brewing");
+    Prompt(&first,"$$[Ingredients[speckled_melon,blaze_powder,sugar,ghast_tear,magma_cream,spider_eye,rabbit_foot]]");
+    Prompt(&second,"$$[Ingredients[glowstone_dust,redstone,Fermented Spider Eye]]");
+    ifmatches(%&second%,"Fermented Spider Eye");
+        Prompt(&third,"$$[Ingredients[glowstone_dust,redstone]]");
+    endif;
+    Prompt(&fourth,"$$[Gunpower[Yes,No]]");
+    Prompt(&number,"$$[Repeat[Auto,1,8,16,32,48,64,99999]]");
+endif;
+//=========================
+Prompt(&delay,"$$[Delay in seconds[0,30,60,90,120,150,180]]");
+//===========================================================================================
+IF(%&option%="Brewing");
+    log(Brewing);
+    #fillbottle=0;
+    #chest=0;
+    #bottles=0;
+    #glassbottle=0;
+    #waterbottle=0;
+    #firstig=0;
+    #secondig=0;
+    #thirdig=0;
+    #forthig=0;
+    &dire=%DIRECTION%;
+    ifmatches(%&dire%,N);&dire=NORTH;endif;
+    ifmatches(%&dire%,S);&dire=SOUTH;endif;
+    ifmatches(%&dire%,E);&dire=EAST;endif;
+    ifmatches(%&dire%,W);&dire=WEST;endif;
+    #brewing=0;#water=0;
+    &itemidvar1=GETIDREL(-1,0,-1);&itemidvar2=GETIDREL(0,0,-1);&itemidvar3=GETIDREL(+1,0,-1);
+    &itemidvar4=GETIDREL(-1,0,0);&itemidvar5=GETIDREL(0,0,0);&itemidvar6=GETIDREL(+1,0,0);
+    &itemidvar7=GETIDREL(-1,0,+1);&itemidvar8=GETIDREL(0,0,+1);&itemidvar9=GETIDREL(+1,0,+1);
+    
+    ifmatches(%&itemidvar1%,"brewing_stand");inc(#brewing,1);endif;
+    ifmatches(%&itemidvar2%,"brewing_stand");inc(#brewing,1);endif;
+    ifmatches(%&itemidvar3%,"brewing_stand");inc(#brewing,1);endif;
+    ifmatches(%&itemidvar4%,"brewing_stand");inc(#brewing,1);endif;
+    ifmatches(%&itemidvar5%,"water");inc(#water,1);endif;
+    ifmatches(%&itemidvar6%,"brewing_stand");inc(#brewing,1);endif;
+    ifmatches(%&itemidvar7%,"brewing_stand");inc(#brewing,1);endif;
+    ifmatches(%&itemidvar8%,"brewing_stand");inc(#brewing,1);endif;
+    ifmatches(%&itemidvar9%,"brewing_stand");inc(#brewing,1);endif;
+    
+    ifmatches(%&itemidvar1%,"chest");inc(#chest,1);endif;
+    ifmatches(%&itemidvar2%,"chest");inc(#chest,1);endif;
+    ifmatches(%&itemidvar3%,"chest");inc(#chest,1);endif;
+    ifmatches(%&itemidvar4%,"chest");inc(#chest,1);endif;
+    ifmatches(%&itemidvar6%,"chest");inc(#chest,1);endif;
+    ifmatches(%&itemidvar7%,"chest");inc(#chest,1);endif;
+    ifmatches(%&itemidvar8%,"chest");inc(#chest,1);endif;
+    ifmatches(%&itemidvar9%,"chest");inc(#chest,1);endif;
+    //=====
+    gui(inventory);
+    wait(1);
+    unsafe;
+    FOR(#invslot,9,44);
+        getslotitem(%#invslot%,&iteminfo,#stacksize,&datavalue);
+        if(%&iteminfo%=="air");inc(#fillbottle,1);endif;
+        if(%&iteminfo%=="glass_bottle");inc(#glassbottle,%#stacksize%);endif;
+        ifmatches(%&iteminfo%,"potion");
+            ifmatches(%&datavalue%,"0");
+                inc(#waterbottle,%#stacksize%);
+            endif;
+        endif;
+        
+        if(%&iteminfo%=="nether_wart");inc(#firstig,%#stacksize%);endif;
+        
+        if((%&iteminfo%=="sugar")&&(%&first%=="sugar"));inc(#secondig,%#stacksize%);endif;
+        if((%&iteminfo%=="speckled_melon")&&(%&first%=="speckled_melon"));inc(#secondig,%#stacksize%);endif;
+        
+        if((%&second%=="glowstone_dust")|(%&third%=="glowstone_dust"));
+            if(%&iteminfo%=="glowstone_dust");
+                inc(#thirdig,%#stacksize%);
+            endif;
+        endif;
+        
+        if((%&second%=="redstone")|(%&third%ig=="redstone"));
+            if(%&iteminfo%=="redstone");
+                inc(#third,%#stacksize%);
+            endif;
+        endif;
+        ifmatches(%&fourth%,"Yes");if(%&iteminfo%=="gunpowder");inc(#forthig,%#stacksize%);endif;endif;
+    Next;
+    endunsafe;
+    #amount=%#firstig%+%#secondig%+%#thirdig%÷4
+    log(number %#num%, amount %#amount%, first %#firstig%, second %#secondig%, third %#thirdig%, brewingstands %#brewing%, chest %#chest%, waterbottle %#waterbottle%)
+    #num=%&number%;
+    do(%#num%);
+        //Fills Water Bottle's
+        ifmatches(%#water%,"1");
+            #fillbottle=0;
+            gui(inventory);
+        
+            unsafe;
+            FOR(#invslot,9,44);
+                getslotitem(%#invslot%,&iteminfo,#stacksize,&datavalue);
+                if(%&iteminfo%=="air");
+                    inc(#fillbottle,1);
+                endif;
+            Next;
+            endunsafe;
+        
+            gui();
+            look(+0,90,0.5);
+            do(%#fillbottle%);
+                pick(glass_bottle);
+                key(use);
+                wait(5t);
+            loop(%#fillbottle%);
+        endif;
+        //===========================================
+        #checked=0;
+        look(%&dire%,0.5);
+        look(+0,50,0.5);
+        do(%#brewing%);
+            key(use);
+            do();until(%GUI%=="GUIBREWINGSTAND");
+            
+            if(%#checked%=0);
+                unsafe;
+                for(#forsearch,0,44);
+                    getslotitem(%#forsearch%,&iteminfo,#stacksize,&datavalue);
+                    ifmatches(%&iteminfo%,"potion");
+                        ifmatches(%&datavalue%,"0");
+                            slotclick(%#forsearch%,1,true);
+                            wait(1t);
+                        endif;
+                    endif;
+                next;
+                endunsafe;
+            endif;
+            #check=0;
+            unsafe;
+            for(#forsearch,4,39);
+                if(%#check%=0);
+                    getslotitem(%#forsearch%,&iteminfo,#stacksize,#datavalue);
+                        if(%&iteminfo%="nether_wart");
+                        slotclick(%#forsearch%);wait(1t);
+                        SLOTCLICK(3,RMOUSE,false);wait(1t);
+                        slotclick(%#forsearch%);wait(1t);
+                        inc(#check,1);
+                    endif;
+                endif;
+            next;
+            endunsafe;
+            
+            gui();
+            look(+45,+0,0.5);
+        loop(%#brewing%);
+        ;;===================================
+        ;;First
+        look(%&dire%,0.5);
+        look(+0,50,0.5);
+        do(%#brewing%);
+            if(%HITID%="brewing_stand")
+            key(use);
+            do();until(%GUI%=="GUIBREWINGSTAND");
+            
+            do;
+            GETSLOTITEM(3,&item);
+            UNTIL(&item="air");
+            wait(5t);
+            #check=0;
+            unsafe;
+            for(#forsearch,4,39);
+                if(%#check%=0);
+                    getslotitem(%#forsearch%,&iteminfo,#stacksize,#datavalue);
+                        if(%&iteminfo%=%&first%);
+                        slotclick(%#forsearch%);wait(1t);
+                        SLOTCLICK(3,RMOUSE,false);wait(1t);
+                        slotclick(%#forsearch%);wait(1t);
+                        inc(#check,1);
+                    endif;
+                endif;
+            next;
+            endunsafe;
+            
+            gui();
+            look(+45,+0,0.5);
+            endif;
+        loop(%#brewing%);
+        ;;===========================
+        ;;Second
+        look(%&dire%,0.5);
+        look(+0,50,0.5);
+        do(%#brewing%);
+            if(%HITID%="brewing_stand")
+            key(use);
+            do();until(%GUI%=="GUIBREWINGSTAND");
+            
+            do;
+            GETSLOTITEM(3,&item);
+            UNTIL(&item="air");
+            wait(5t);
+            #check=0;
+            unsafe;
+            for(#forsearch,4,39);
+                if(%#check%=0);
+                    getslotitem(%#forsearch%,&iteminfo,#stacksize,#datavalue);
+                        if(%&iteminfo%=%&second%);
+                        slotclick(%#forsearch%);wait(1t);
+                        SLOTCLICK(3,RMOUSE,false);wait(1t);
+                        slotclick(%#forsearch%);wait(1t);
+                        inc(#check,1);
+                    endif;
+                endif;
+            next;
+            endunsafe;
+            
+            gui();
+            look(+45,+0,0.5);
+            endif;
+        loop(%#brewing%);
+        ;;========================
+        ;;third
+        look(%&dire%,0.5);
+        look(+0,50,0.5);
+        do(%#brewing%);
+            if(%HITID%="brewing_stand")
+            key(use);
+            do();until(%GUI%=="GUIBREWINGSTAND");
+            
+            do;
+            GETSLOTITEM(3,&item);
+            UNTIL(&item="air");
+            wait(5t);
+            #check=0;
+            unsafe;
+            for(#forsearch,4,39);
+                if(%#check%=0);
+                    getslotitem(%#forsearch%,&iteminfo,#stacksize,#datavalue);
+                        if(%&iteminfo%=%&third%);
+                        slotclick(%#forsearch%);wait(1t);
+                        SLOTCLICK(3,RMOUSE,false);wait(1t);
+                        slotclick(%#forsearch%);wait(1t);
+                        inc(#check,1);
+                    endif;
+                endif;
+            next;
+            endunsafe;
+            
+            gui();
+            look(+45,+0,0.5);
+            endif;
+        loop(%#brewing%);
+        ;;========================
+        ;;Fourth
+        look(%&dire%,0.5);
+        look(+0,50,0.5);
+        do(%#brewing%);
+            if(%HITID%="brewing_stand")
+            key(use);
+            do();until(%GUI%=="GUIBREWINGSTAND");
+            
+            do;
+            GETSLOTITEM(3,&item);
+            UNTIL(&item="air");
+            wait(5t);
+            #check=0;
+            unsafe;
+            for(#forsearch,4,39);
+                if(%#check%=0);
+                    getslotitem(%#forsearch%,&iteminfo,#stacksize,#datavalue);
+                        if(%&iteminfo%="gunpowder");
+                        slotclick(%#forsearch%);wait(1t);
+                        SLOTCLICK(3,RMOUSE,false);wait(1t);
+                        slotclick(%#forsearch%);wait(1t);
+                        inc(#check,1);
+                    endif;
+                endif;
+            next;
+            endunsafe;
+            
+            gui();
+            look(+45,+0,0.5);
+            endif;
+        loop(%#brewing%);
+        ;;==============================================================================================
+        look(%&dire%,0.5);
+        look(+0,50,0.5);
+        do(%#brewing%);
+            if(%HITID%="brewing_stand")
+            look(+0,50,0.5);
+            key(use);
+            do();
+            until(%GUI%=="GUIBREWINGSTAND");
+            wait(2t);
+            
+            do;
+            GETSLOTITEM(3,&item);
+            UNTIL(&item = "air");
+            wait(2t);
+            &searchitem = potion
+            unsafe;
+            for(#forsearch,0,2);
+                getslotitem(%#forsearch%,&founditem);
+                if(%&founditem% = %&searchitem%);
+                    slotclick(%#forsearch%,1,true);
+                    wait(1t);
+                endif;
+            next;
+            endunsafe;
+        
+            gui();
+            look(+45,+0,0.5);
+            endif;
+        loop(%#brewing%);
+        ;;====================================
+        if((%HITID%="chest")&&(%#chest%!=0));
+            #lookat[0] = HITX + 1;
+            #lookat[1] = HITX - 1;
+            #lookat[2] = HITZ + 1;
+            #lookat[3] = HITZ - 1;
+        
+            UNSET(isdouble);
+            IF(%HITID% = "chest");
+                GETID(%#lookat[0]%,%HITY%,%HITZ%,&foundblock[0]);
+                GETID(%#lookat[1]%,%HITY%,%HITZ%,&foundblock[1]);
+                GETID(%HITX%,%HITY%,%#lookat[2]%,&foundblock[2]);
+                GETID(%HITX%,%HITY%,%#lookat[3]%,&foundblock[3]);
+                
+                FOR(#index,0,3);
+                    IF(%&foundblock[%#index%]% = "chest");
+                        SET(isdouble);
+                    ENDIF;
+                NEXT;
+            
+                IF(isdouble);
+                    #firstslot=54;
+                    #secondslot=89;
+                ELSE;
+                    #firstslot=27;
+                    #secondslot=62;
+                endif;
+            
+                unsafe;
+                for(#forsearch,%#firstslot%,%#secondslot%);
+                    getslotitem(%#forsearch%,&iteminfo,#stacksize,#datavalue);
+                    ifmatches(%&iteminfo%,"potion");
+                        ifmatches(%&datavalue%,"0");
+                            slotclick(%#forsearch%,1,true);
+                            wait(1t);
+                        endif;
+                    endif;
+                next;
+                endunsafe;
+            endif;
+        endif;
+    loop(%#num%);
+endif;
+;;===========================================================
+IF((%&option%="Farming")&&(%&farmer%!="SugarCane"));
+    log(farming other than sugarcane %&farmer% test);
+    &dire=%DIRECTION%;
+    ifmatches(%&dire%,N);&dire=NORTH;endif;
+    ifmatches(%&dire%,S);&dire=SOUTH;endif;
+    ifmatches(%&dire%,E);&dire=EAST;endif;
+    ifmatches(%&dire%,W);&dire=WEST;endif;
+    
+    look(%&dire%,0.5);
+    do(%&number%);
+        look(+0,90,0.5);
+    
+        if(%&selling% != "None");
+            #air=0;
+            gui(inventory);
+            wait(1);
+            unsafe;
+            for(#invslot,9,44);
+                getslotitem(%#invslot%,&iteminfo,#stacksize,&datavalue,&nbtvalue);
+                if(%&iteminfo% = "air");inc(#air,1);endif;
+            next;
+            endunsafe;
+            if(%#air%=0);
+                IF(%&farming% = "NetherWart");pick(nether_ward);endif;
+                IF(%&farming% = "Wheat");pick(wheat);endif;
+                IF(%&farming% = "Carrots");pick(carrot);endif;
+                IF(%&farming% = "Potatoes");pick(potato);endif;
+                echo(/%&selling%);
+                wait(1);
+            endif;
+            gui();
+        endif;
+        ;;=========================================================================
+        #rows=0;
+        do;
+            #checker=0;
+            do;
+                keydown(FORWARD);
+                if(%&farming%="NetherWart");
+                    ifmatches(%DIRECTION%,N);&itemidvar=GETIDREL(0,0,-1);endif;
+                    ifmatches(%DIRECTION%,E);&itemidvar=GETIDREL(+1,0,0);endif;
+                    ifmatches(%DIRECTION%,S);&itemidvar=GETIDREL(0,0,+1);endif;
+                    ifmatches(%DIRECTION%,W);&itemidvar=GETIDREL(-1,0,0);endif;
+                    ifmatches(%DIRECTION%,W);&watercheck=GETIDREL(+1,0,0);endif;
+                    ifmatches(%DIRECTION%,E);&watercheck=GETIDREL(+1,0,0);endif;
+                    ifmatches(%DIRECTION%,N);&watercheck=GETIDREL(0,0,+1);endif;
+                    ifmatches(%DIRECTION%,S);&watercheck=GETIDREL(0,0,+1);endif;
+                endif;
+                
+                if(%&farming%!="NetherWart");
+                    ifmatches(%DIRECTION%,N);&itemidvar=GETIDREL(0,-1,-1);endif;
+                    ifmatches(%DIRECTION%,E);&itemidvar=GETIDREL(+1,-1,0);endif;
+                    ifmatches(%DIRECTION%,S);&itemidvar=GETIDREL(0,-1,+1);endif;
+                    ifmatches(%DIRECTION%,W);&itemidvar=GETIDREL(-1,-1,0);endif;
+                endif;
+                
+                &player=GETIDREL(0,0,0);&player1=GETIDREL(0,-1,0);
+                if(%&player%=="water");keydown(jump);endif;
+                if(%&player%!="water");keyup(jump);endif;
+                if((%&player%!="water")&&(%&player1%!="water"));
+                    IFMATCHES((%HITID%,"dirt","Grass"));
+                        pick(wooden_hoe);pick(stone_hoe);pick(iron_hoe);pick(diamond_hoe);
+                        key(use);
+                    endif;
+                endif;
+                IFMATCHES(%HITID%,"Nether_Wart");
+                    if(%HIT_AGE%=3);
+                        key(attack);
+                    endif;
+                elseif(%HIT_AGE%=7);
+                    key(attack);
+                endif;
+                if((%&itemidvar%!="soul_sand")&&(%&itemidvar%!="farmland")&&(%&itemidvar%!="water")&&(%&watercheck%!="water")&&(%&player%!="water")&&(%&player1%!="water"));
+                    if((%&player%!="carpet")&&(%&player%!="stone_slab")&&(%&player%!="wooden_slab")&&(%&player%!="stone_slab2"));
+                        inc(#checker,1);
+                    endif;
+                endif;
+            until(%#checker%!=0);
+            keyup(forward);
+            IFMATCHES(%HITID%,"Nether_Wart");
+                    if(%HIT_AGE%=3);
+                        key(attack);
+                    endif;
+                elseif(%HIT_AGE%=7);
+                    key(attack);
+                endif;
+            endif;
+            &player=GETIDREL(0,0,0);&player1=GETIDREL(0,-1,0);
+            if((%&player%!="water")&&(%&player1%!="water"));
+                IFMATCHES((%HITID%,"dirt","Grass"));
+                    pick(wooden_hoe);pick(stone_hoe);pick(iron_hoe);pick(diamond_hoe);
+                    key(use);
+                endif;
+            endif;
+            #checker=0;
+            do;
+                keydown(back);
+                if(%&farming%="NetherWart");
+                    ifmatches(%DIRECTION%,W);&itemidvar=GETIDREL(-1,0,0);endif;
+                    ifmatches(%DIRECTION%,E);&itemidvar=GETIDREL(+1,0,0);endif;
+                    ifmatches(%DIRECTION%,N);&itemidvar=GETIDREL(0,0,-1);endif;
+                    ifmatches(%DIRECTION%,S);&itemidvar=GETIDREL(0,0,+1);endif;
+                    ifmatches(%DIRECTION%,W);&watercheck=GETIDREL(+1,-1,0);endif;
+                    ifmatches(%DIRECTION%,E);&watercheck=GETIDREL(+1,-1,0);endif;
+                    ifmatches(%DIRECTION%,N);&watercheck=GETIDREL(0,-1,+1);endif;
+                    ifmatches(%DIRECTION%,S);&watercheck=GETIDREL(0,-1,+1);endif;
+                endif;
+                
+                if(%&farming%!="NetherWart");
+                    ifmatches(%DIRECTION%,W);&itemidvar=GETIDREL(+1,-1,0);endif;
+                    ifmatches(%DIRECTION%,E);&itemidvar=GETIDREL(+1,-1,0);endif;
+                    ifmatches(%DIRECTION%,N);&itemidvar=GETIDREL(0,-1,+1);endif;
+                    ifmatches(%DIRECTION%,S);&itemidvar=GETIDREL(0,-1,+1);endif;
+                endif;
+                
+                &player=GETIDREL(0,0,0);
+                if(%&player%=="water");keydown(jump);endif;
+                if(%&player%!="water");keyup(jump);endif;
+                if((%HITID%="farmland")||(%HITID%="soul_sand"));
+                    IF(%&farming%="NetherWart");pick(nether_wart);endif;
+                    IF(%&farming%="Wheat");pick(wheat_seeds);endif;
+                    IF(%&farming%="Carrots");pick(carrot);endif;
+                    IF(%&farming%="Potatoes");pick(potato);endif;
+                    key(use);
+                endif;
+                if((%&itemidvar%!="soul_sand")&&(%&itemidvar%!="farmland")&&(%&itemidvar%!="water")&&(%&watercheck%!="water")&&(%&player%!="water")&&(%&player1%!="water"));
+                    if((%&player%!="carpet")&&(%&player%!="stone_slab")&&(%&player%!="wooden_slab")&&(%&player%!="stone_slab2"));
+                        inc(#checker,1);
+                    endif;
+                endif;
+            until(%#checker%!=0);
+            keyup(back);
+            &itemidvar1=GETIDREL(0,0,0);
+            if((%HITID%="farmland")|(%HITID%="soul_sand"));
+                IF(%&farming% = "NetherWart");pick(nether_wart);endif;
+                IF(%&farming% = "Wheat");pick(wheat_seeds);endif;
+                IF(%&farming% = "Carrots");pick(carrot);endif;
+                IF(%&farming% = "Potatoes");pick(potato);endif;
+                key(use);
+            endif;
+            
+            if(%&farming%="NetherWart");
+                ifmatches(%DIRECTION%,S);&itemidvar=GETIDREL(-1,0,0);endif;
+                ifmatches(%DIRECTION%,W);&itemidvar=GETIDREL(0,0,-1);endif;
+                ifmatches(%DIRECTION%,N);&itemidvar=GETIDREL(+1,0,0);endif;
+                ifmatches(%DIRECTION%,E);&itemidvar=GETIDREL(0,0,-1);endif;
+            endif;
+            
+            if(%&farming%!="NetherWart");
+                ifmatches(%DIRECTION%,S);&itemidvar=GETIDREL(-1,-1,0);endif;
+                ifmatches(%DIRECTION%,W);&itemidvar=GETIDREL(0,-1,-1);endif;
+                ifmatches(%DIRECTION%,N);&itemidvar=GETIDREL(+1,-1,0);endif;
+                ifmatches(%DIRECTION%,E);&itemidvar=GETIDREL(0,-1,-1);endif;
+            endif;
+            
+            if((%&itemidvar%="soul_sand")||(%&itemidvar%="farmland"));
+                inc(#rows,1);
+                #posx=%XPOS%;#posz=%ZPOS%;
+                do;
+                keydown(right);
+                until((%XPOS%=%#posx%+1)|(%XPOS%=%#posx%-1)|(%ZPOS%=%#posz%+1)|(%ZPOS%=%#posz%-1));
+                keyup(right);
+            endif;
+        until((%&itemidvar%!="soul_sand")&&(%&itemidvar%!="farmland"));
+        
+        #posx=%XPOS%;#posz=%ZPOS%;
+        do;
+        keydown(left);
+        until((%XPOS%=%#posx%+%#rows%)|(%XPOS%=%#posx%-%#rows%)|(%ZPOS%=%#posz%+%#rows%)|(%ZPOS%=%#posz%-%#rows%));
+        keyup(left);
+        
+    if(%&delay%!=0);
+        log(Waiting %&delay%);
+        wait(%&delay%);
+    endif;
+    loop(%&number%);
+endif;
+;;=========================================================
+IF(%&farmer%="SugarCane");
+    log(SugarCane);
+    do(%&number%);
+    #block=0;#rows=0;
+    &dire=%DIRECTION%;
+    ifmatches(%&dire%,N);&dire=NORTH;endif;
+    ifmatches(%&dire%,S);&dire=SOUTH;endif;
+    ifmatches(%&dire%,E);&dire=EAST;endif;
+    ifmatches(%&dire%,W);&dire=WEST;endif;
+    do;
+        look(%&dire%,0.5);
+        if(%&selling% != "None");
+    #air=0;
+    unsafe;
+    for(#invslot,9,44);
+        getslotitem(%#invslot%,&iteminfo,#stacksize,&datavalue,&nbtvalue);
+        if(%&iteminfo% = "air");
+        inc(#air,1);
+        endif;
+    next;
+    endunsafe;
+
+    if(%#air%=0);
+        pick(sugarcane)
+        echo(/%&selling%);
+        wait(1);
+        endif;
+            gui();
+    endif;
+
+    do;
+        IFMATCHES(%HITID%,"reeds");key(attack);endif;
+        ifmatches(%DIRECTION%,N);&itemidvar=GETIDREL(0,0,-1);endif;
+        ifmatches(%DIRECTION%,E);&itemidvar=GETIDREL(+1,0,0);endif;
+        ifmatches(%DIRECTION%,S);&itemidvar=GETIDREL(0,0,+1);endif;
+        ifmatches(%DIRECTION%,W);&itemidvar=GETIDREL(-1,0,0);endif;
+        keydown(forward);
+    until(%&itemidvar%!="reeds");
+    keyup(forward);
+
+    look(+90,0,0.5);
+    #posx=%XPOS%;#posz=%ZPOS%;
+    do;
+    keydown(forward);
+    until((%XPOS%=%#posx%+1)|(%XPOS%=%#posx%-1)|(%ZPOS%=%#posz%+1)|(%ZPOS%=%#posz%-1));
+    keyup(forward);
+    look(+90,0,0.5);
+    endif;
+
+    do;
+        IFMATCHES(%HITID%,"reeds");key(attack);endif;
+        ifmatches(%DIRECTION%,N);&itemidvar=GETIDREL(0,0,-1);endif;
+        ifmatches(%DIRECTION%,E);&itemidvar=GETIDREL(+1,0,0);endif;
+        ifmatches(%DIRECTION%,S);&itemidvar=GETIDREL(0,0,+1);endif;
+        ifmatches(%DIRECTION%,W);&itemidvar=GETIDREL(-1,0,0);endif;
+        keydown(forward);
+    until(%&itemidvar%!="reeds");
+    keyup(forward);
+    
+    ifmatches(%DIRECTION%,S);&itemidvar=GETIDREL(+1,0,0);endif;
+    ifmatches(%DIRECTION%,W);&itemidvar=GETIDREL(0,0,+1);endif;
+    ifmatches(%DIRECTION%,N);&itemidvar=GETIDREL(-1,0,0);endif;
+    ifmatches(%DIRECTION%,E);&itemidvar=GETIDREL(0,0,-1);endif;
+    if(%&itemidvar%=="air");#block=1;endif;
+    if((%&itemidvar%=="stone_slab")|(%&itemidvar%=="stone_slab2")|(%&itemidvar%=="wooden_slab")|(%&itemidvar%=="carpet"));#block=2;endif;
+    
+    ifmatches(%DIRECTION%,S);&itemidvar=GETIDREL(+2,0,0);endif;
+    ifmatches(%DIRECTION%,W);&itemidvar=GETIDREL(0,0,+2);endif;
+    ifmatches(%DIRECTION%,N);&itemidvar=GETIDREL(-2,0,0);endif;
+    ifmatches(%DIRECTION%,E);&itemidvar=GETIDREL(0,0,-2);endif;
+    if(%&itemidvar%=="reeds");
+        inc(#rows,1);
+        look(-90,0,0.5);
+        #posx=%XPOS%;#posz=%ZPOS%;
+        if(%#block%=0);keydown(jump);endif;
+            do;
+                if(%#block%=1);
+                    &itemidvar=GETIDREL(0,0,0);
+                    if(%&itemidvar%=="water");keydown(jump);endif;
+                    if(%&itemidvar%!="water");keyup(jump);endif;
+                endif;
+                keydown(forward);
+            until((%XPOS%=%#posx%+2)|(%XPOS%=%#posx%-2)|(%ZPOS%=%#posz%+2)|(%ZPOS%=%#posz%-2));
+            keyup(forward);keyup(jump);
+        endif;
+    until(%&itemidvar%!="reeds");
+    
+    look(+90,0,0.5);
+    #walk=%#rows%*3;
+    #posx=%XPOS%;#posz=%ZPOS%;
+    if(%#block%=0);keydown(jump);endif;
+    do;
+        keydown(forward);
+        if(%#block%=1);
+            &itemidvar=GETIDREL(0,0,0);
+            if(%&itemidvar%=="water");keydown(jump);endif;
+            if(%&itemidvar%!="water");keyup(jump);endif;
+        endif;
+    until((%XPOS%=%#posx%+%#walk%)|(%XPOS%=%#posx%-%#walk%)|(%ZPOS%=%#posz%+%#walk%)|(%ZPOS%=%#posz%-%#walk%));keyup(forward);
+    wait(1t);
+    #posx=%XPOS%;#posz=%ZPOS%;
+    do;
+    keydown(forward);
+    until((%XPOS%=%#posx%+1)|(%XPOS%=%#posx%-1)|(%ZPOS%=%#posz%+1)|(%ZPOS%=%#posz%-1));keyup(forward);keyup(jump);look(+90,0,0.5);
+    if(%&delay% != "0")
+        log(Waiting %&delay%);
+        wait(%&delay%);
+    endif;
+loop(%#number%);
+endif;
+;;============================================
+log(End of the script);
+unset(z);
+stop();
