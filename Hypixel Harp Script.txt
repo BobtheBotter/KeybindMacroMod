@@ -1,0 +1,20 @@
+if(z);log("&4 OFF");unset(z);keyup(jump);keyup(forward);keyup(back);keyup(left);keyup(right);keyup(sneak);
+stop();else;set(z);log("&2 ON");
+if your having a hard time getting 100% try to change #timing
+#timing=2;
+log(BobTheBotter's Script);
+do();
+    unsafe;
+    if(%GUI%!="none");
+        FOR(#invslot,28,34);
+            getslotitem(%#invslot%,&id,#amount,#data);
+            if(%&id%="wool");
+                #num=%#invslot%+9;
+                wait(%#timing%t);
+                slotclick(%#num%,true);
+            endif;
+        endif;
+        next;
+    endif;
+    endunsafe();
+loop();
