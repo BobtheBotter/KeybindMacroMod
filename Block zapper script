@@ -1,0 +1,39 @@
+if(z);log("&4 OFF");unset(z);keyup(jump);keyup(forward);keyup(back);keyup(left);keyup(right);keyup(sneak);stop();
+else;set(z);log("&2 ON");endif;
+
+#check=0;
+do();
+	#x=-23;#z=21;#y=31;#range=8;limbo
+    if((%XPOS%<%#x%+%#range%)&&(%XPOS%>%#x%-%#range%)&&(%ZPOS%<%#z%+%#range%)&&(%ZPOS%>%#z%-%#range%)&&(%YPOS%<%#y%+%#range%)&&(%YPOS%>%#y%-%#range%));
+        echo(/lobby);inc(#failsafecheck,1);wait(10);
+    endif;
+	
+    #x=-149;#z=148;#y=69;#range=8;prototyoe
+    if((%XPOS%<%#x%+%#range%)&&(%XPOS%>%#x%-%#range%)&&(%ZPOS%<%#z%+%#range%)&&(%ZPOS%>%#z%-%#range%)&&(%YPOS%<%#y%+%#range%)&&(%YPOS%>%#y%-%#range%));
+        echo(/skyblock);inc(#failsafecheck,1);wait(10);
+    endif;
+	
+    #x=41;#z=22;#y=87;#range=8;main hub
+    if((%XPOS%<%#x%+%#range%)&&(%XPOS%>%#x%-%#range%)&&(%ZPOS%<%#z%+%#range%)&&(%ZPOS%>%#z%-%#range%)&&(%YPOS%<%#y%+%#range%)&&(%YPOS%>%#y%-%#range%));
+        echo(/skyblock);inc(#failsafecheck,1);wait(10);`
+    endif;
+	
+    #x=-2;#z=-69;#y=70;#range=8;skyblock hub
+    if((%XPOS%<%#x%+%#range%)&&(%XPOS%>%#x%-%#range%)&&(%ZPOS%<%#z%+%#range%)&&(%ZPOS%>%#z%-%#range%)&&(%YPOS%<%#y%+%#range%)&&(%YPOS%>%#y%-%#range%));
+        echo(/is);inc(#failsafecheck,1);wait(10);inc(#hubcheck,1);ifmatches(%#hubcheck%,10);echo(/l);else;ifmatches(%&fly%,true);keydown(jump);wait(1t);keuuyp(jump);wait(1);endif;endif;
+    endif;
+	if(%HITID%="cobblestone");
+		key(use);wait(1t);
+		inc(#check,1);
+		if(%#check%>=150);
+			echo(/bz);
+			wait(1);
+			slotclick(38,true);
+			wait(1);
+			slotclick(11,true);
+			wait(1);
+			gui();
+			wait(1);
+		endif;
+	endif;
+loop();
